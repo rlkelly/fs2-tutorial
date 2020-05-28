@@ -6,4 +6,3 @@ moon
 summer
 deer
 boom
-password
