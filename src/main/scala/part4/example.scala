@@ -23,7 +23,7 @@ object Part4 extends IOApp {
   def makeForm(pw: String): UrlForm = UrlForm("username" -> "boss", "password" -> pw)
 
   def findPassword(): Stream[IO, Unit] = {
-    val blockingPool = Executors.newFixedThreadPool(1)
+    val blockingPool = Executors.newFixedThreadPool(10)
     val blocker = Blocker.liftExecutorService(blockingPool)
     val client: Client[IO] = JavaNetClientBuilder[IO](blocker).create
 
@@ -34,11 +34,10 @@ object Part4 extends IOApp {
             .interruptWhen(switch.get.attempt)
             .through(text.utf8Decode)
             .through(text.lines)
-            .map(letter =>
+            .flatMap(line =>
               Stream.emits(1 to 10)
-                .map(index => s"$letter$index")
+                .map(index => s"$line$index")
             )
-            .flatten
             .metered(1.second)
             .flatMap(pw => {
               val req = Request[IO](POST, Uri.unsafeFromString("http://localhost:5000/login"))

@@ -8,14 +8,10 @@ object Part3 extends IOApp {
   def run(args: List[String]) : IO[ExitCode] = {
     pipeExample()
       .through(asyncPipeTap)
-      // .through(asyncPipeMap)
+      .through(asyncPipeMap)
       .compile
       .drain
       .as(ExitCode.Success)
-  }
-
-  def change[F[_]]: Pipe[F, Int, String] = {
-    _.flatMap(s => Stream(s.toString + "...."))
   }
 
   def asyncPipeTap[F[_] : Sync: LiftIO]: Stream[F, String] => Stream[F, String] =
@@ -31,10 +27,13 @@ object Part3 extends IOApp {
         _ => IO.unit).to[F]
     }
 
+  def change[F[_]]: Pipe[F, Int, String] = {
+    _.flatMap(s => Stream(s.toString + "...."))
+  }
+
   def pipeExample() : Stream[IO, String] = {
     fs2.Stream
       .emits(1 to 10)
         .through(change)
-        // .flatMap(x => Stream.eval(IO(println(x))))
   }
 }

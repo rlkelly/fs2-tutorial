@@ -20,7 +20,7 @@ object Part2 extends IOApp {
       file.readAll[IO](Paths.get("./myfile.txt"), blocker, 4096)
         .through(text.utf8Decode)
         .through(text.lines)
-        .map(line => println(line))
+        .evalMap(line => IO(println(line)))
     }
   }
 

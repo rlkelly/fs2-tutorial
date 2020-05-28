@@ -6,8 +6,7 @@ import fs2._
 
 object Part1 extends IOApp {
   def run(args: List[String]) : IO[ExitCode] = {
-        merge1()
-          .covary[IO]
+        merge2()
           .compile
           .drain
           .as(ExitCode.Success)
@@ -27,13 +26,12 @@ object Part1 extends IOApp {
   def merge2(): Stream[IO, Unit] = {
     fs2.Stream
       .emits('A' to 'E')
-      .map(letter =>
-        Stream.emits(1 to 10)
+      .flatMap(letter => {
+        Stream.emits(1 to 100)
           .map(index => s"$letter$index")
-      )
-      .flatten
+      })
       .flatMap(x => Stream.eval(IO(println(x))))
-      .take(5)
+      .take(10)
   }
 
 }
